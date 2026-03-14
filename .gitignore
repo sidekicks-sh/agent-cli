@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Runtime artifacts
+*.log
+*.pid
+repos/
+sidekick.log
+sidekick.pid
+
+# Environment and local secrets
+.env
+.env.local
+.env.*.local
+docker/.env.sidekick
+docker/secrets/
+docker/repos/
+docker/logs/
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
