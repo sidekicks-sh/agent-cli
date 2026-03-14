@@ -2,15 +2,6 @@
 
 The `sidekick` CLI runs a local Sidekick agent that connects to Sidekicks and executes work for your repositories.
 
-## Requirements
-
-- Bun `>=1.3`
-- `git`, `gh`
-- Optional (only if you choose those backends):
-  - `codex`
-  - `claude`
-  - `opencode`
-
 ## Quick Start
 
 Install:
