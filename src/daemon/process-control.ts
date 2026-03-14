@@ -24,7 +24,14 @@ export interface DaemonStopResult {
   message: string
 }
 
-export async function runForegroundScaffold(config: SidekickConfig) {
+interface ForegroundScaffoldOptions {
+  mirrorLogsToStderr?: boolean
+}
+
+export async function runForegroundScaffold(
+  config: SidekickConfig,
+  options: ForegroundScaffoldOptions = {},
+) {
   await ensureSingleInstance(config.pidFile)
   await mkdir(dirname(config.logFile), { recursive: true })
 
@@ -43,6 +50,7 @@ export async function runForegroundScaffold(config: SidekickConfig) {
     await runDaemonLoop(config, {
       shouldStop: () => shouldStop,
       environment: process.env,
+      mirrorLogsToStderr: options.mirrorLogsToStderr ?? false,
     })
   } catch (error) {
     await writeRuntimeLog(

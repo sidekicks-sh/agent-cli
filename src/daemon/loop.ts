@@ -49,6 +49,7 @@ export interface RunDaemonLoopOptions {
   shouldStop?: () => boolean
   dependencies?: DaemonLoopDependencies
   environment?: NodeJS.ProcessEnv
+  mirrorLogsToStderr?: boolean
 }
 
 interface RuntimeState {
@@ -110,6 +111,7 @@ export async function runDaemonLoop(
   const logger = new StructuredLogger({
     logFile: config.logFile,
     logBatchSize: config.logBatchSize,
+    mirrorToStderr: options.mirrorLogsToStderr ?? false,
     getContext: () => ({
       sidekickId: config.sidekickId,
       sidekickName: state.sidekickName,

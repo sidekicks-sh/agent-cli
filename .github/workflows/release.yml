@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
   group: release-${{ github.event.workflow_run.head_branch }}
@@ -49,3 +50,38 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: bun run release
+
+      - name: Resolve release metadata
+        id: release_meta
+        run: |
+          if [ -f .release-version ]; then
+            version="$(cat .release-version)"
+            echo "published=true" >> "${GITHUB_OUTPUT}"
+            echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "published=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Setup Docker Buildx
+        if: steps.release_meta.outputs.published == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        if: steps.release_meta.outputs.published == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: steps.release_meta.outputs.published == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.release_meta.outputs.version }}
+            ghcr.io/${{ github.repository }}:v${{ steps.release_meta.outputs.version }}

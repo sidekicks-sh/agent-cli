@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 
-import packageJson from "../../../package.json" with { type: "json" };
+import packageJson from "./package.json" with { type: "json" };
 
-import { readConfig } from "../../../src/config";
+import { readConfig } from "./src/config";
 import {
   getDaemonStatus,
   runForegroundScaffold,
   startDetached,
   stopDaemon,
-} from "../../../src/daemon";
+} from "./src/daemon";
 
 type Command = "start" | "status" | "stop";
 
@@ -22,6 +22,8 @@ Commands:
 Options:
   -h, --help         Show help
   -v, --version      Show version
+
+Default start mode runs attached and streams logs to stderr.
 
 Start options:
   -d, --detach       Start daemon in background
@@ -94,7 +96,9 @@ async function startCommand(options: CliOptions) {
 
   console.log(`sidekick started (pid ${process.pid})`);
   console.log(`logs: ${config.logFile}`);
-  await runForegroundScaffold(config);
+  await runForegroundScaffold(config, {
+    mirrorLogsToStderr: !options.noDetach,
+  });
   return 0;
 }
 

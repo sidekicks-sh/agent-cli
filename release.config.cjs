@@ -28,6 +28,7 @@ module.exports = {
             '@semantic-release/exec',
             {
               prepareCmd: 'bun run build:release',
+              successCmd: "printf '%s' '${nextRelease.version}' > .release-version",
             },
           ],
         ]

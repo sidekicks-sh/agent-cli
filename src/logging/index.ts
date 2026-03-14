@@ -16,6 +16,8 @@ export interface StructuredLoggerOptions {
   logFile: string
   logBatchSize: number
   getContext: () => StructuredLogContext
+  mirrorToStderr?: boolean
+  writeMirrorLine?: (line: string) => void
   onTaskLogBatch?: (
     taskId: string,
     runId: string,
@@ -27,6 +29,8 @@ export class StructuredLogger {
   private readonly logFile: string
   private readonly logBatchSize: number
   private readonly getContext: () => StructuredLogContext
+  private readonly mirrorToStderr: boolean
+  private readonly writeMirrorLine: (line: string) => void
   private readonly onTaskLogBatch?: (
     taskId: string,
     runId: string,
@@ -39,6 +43,12 @@ export class StructuredLogger {
     this.logFile = options.logFile
     this.logBatchSize = Math.max(1, options.logBatchSize)
     this.getContext = options.getContext
+    this.mirrorToStderr = options.mirrorToStderr ?? false
+    this.writeMirrorLine =
+      options.writeMirrorLine ??
+      ((line) => {
+        process.stderr.write(`${line}\n`)
+      })
     this.onTaskLogBatch = options.onTaskLogBatch
   }
 
@@ -67,6 +77,9 @@ export class StructuredLogger {
     })
 
     await appendFile(this.logFile, `${line}\n`, 'utf8')
+    if (this.mirrorToStderr) {
+      this.writeMirrorLine(line)
+    }
     this.enqueueTaskLog(context, line)
   }
 

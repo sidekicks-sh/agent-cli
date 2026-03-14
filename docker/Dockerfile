@@ -3,7 +3,7 @@ FROM oven/bun:1.3 AS builder
 WORKDIR /build
 
 COPY package.json bun.lock tsconfig.json eslint.config.js ./
-COPY apps ./apps
+COPY main.ts ./main.ts
 COPY src ./src
 
 RUN bun install --frozen-lockfile \
