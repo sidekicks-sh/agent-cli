@@ -1,9 +1,8 @@
 # 1.0.0 (2026-03-14)
 
-
 ### Features
 
-* initial release ([10af7a7](https://github.com/sidekicks-sh/sidekick/commit/10af7a7d27c3e0caac3c9afe11960a07ee670325))
+- initial release ([10af7a7](https://github.com/sidekicks-sh/sidekick/commit/10af7a7d27c3e0caac3c9afe11960a07ee670325))
 
 # Changelog
 

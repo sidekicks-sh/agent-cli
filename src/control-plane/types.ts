@@ -1,111 +1,112 @@
-import type { BackendKind } from '../backends'
+import type { BackendKind } from "../backends";
 
-export type SidekickRuntimeStatus = 'booting' | 'idle' | 'working'
-export type TaskExecutionStatus = 'running' | 'succeeded' | 'failed'
+export type SidekickRuntimeStatus = "booting" | "idle" | "working";
+export type TaskExecutionStatus = "running" | "succeeded" | "failed";
 
 export interface RegisterSidekickInput {
-  agent: BackendKind
-  hostname: string
-  status: SidekickRuntimeStatus
+  agent: BackendKind;
+  hostname: string;
+  status: SidekickRuntimeStatus;
 }
 
 export interface SidekickRegistration {
-  id?: string
-  name: string
-  purpose: string
-  prompt: string
+  id?: string;
+  name: string;
+  purpose: string;
+  prompt: string;
 }
 
 export interface ReservedTask {
-  taskId: string
-  runId: string
-  taskTitle: string
-  repoUrl: string
-  repoName: string
-  baseBranch: string
-  executionBranch: string
-  instructions: string
+  taskId: string;
+  runId: string;
+  taskTitle: string;
+  repoUrl: string;
+  repoName: string;
+  baseBranch: string;
+  executionBranch: string;
+  instructions: string;
 }
 
 export interface HeartbeatInput {
-  status: SidekickRuntimeStatus
+  status: SidekickRuntimeStatus;
 }
 
 export interface TaskStatusInput {
-  id: string
-  runId: string
-  status: TaskExecutionStatus
-  message: string
+  id: string;
+  runId: string;
+  status: TaskExecutionStatus;
+  message: string;
+  resultUrl: string;
 }
 
 export interface TaskLogInput {
-  id: string
-  runId: string
-  message: string
+  id: string;
+  runId: string;
+  message: string;
 }
 
 export interface ControlPlaneTelemetryRequestEvent {
-  type: 'request'
-  requestId: string
-  method: string
-  url: string
-  attempt: number
+  type: "request";
+  requestId: string;
+  method: string;
+  url: string;
+  attempt: number;
 }
 
 export interface ControlPlaneTelemetryResponseEvent {
-  type: 'response'
-  requestId: string
-  method: string
-  url: string
-  attempt: number
-  status: number
-  elapsedMs: number
+  type: "response";
+  requestId: string;
+  method: string;
+  url: string;
+  attempt: number;
+  status: number;
+  elapsedMs: number;
 }
 
 export interface ControlPlaneTelemetryRetryEvent {
-  type: 'retry'
-  requestId: string
-  method: string
-  url: string
-  attempt: number
-  reason: string
-  backoffMs: number
+  type: "retry";
+  requestId: string;
+  method: string;
+  url: string;
+  attempt: number;
+  reason: string;
+  backoffMs: number;
 }
 
 export interface ControlPlaneTelemetryErrorEvent {
-  type: 'error'
-  requestId: string
-  method: string
-  url: string
-  attempt: number
-  reason: string
+  type: "error";
+  requestId: string;
+  method: string;
+  url: string;
+  attempt: number;
+  reason: string;
 }
 
 export type ControlPlaneTelemetryEvent =
   | ControlPlaneTelemetryRequestEvent
   | ControlPlaneTelemetryResponseEvent
   | ControlPlaneTelemetryRetryEvent
-  | ControlPlaneTelemetryErrorEvent
+  | ControlPlaneTelemetryErrorEvent;
 
 export type ControlPlaneTelemetryHook = (
   event: ControlPlaneTelemetryEvent,
-) => void
+) => void;
 
 export interface RetryPolicy {
-  maxAttempts: number
-  baseDelayMs: number
-  maxDelayMs: number
+  maxAttempts: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
 }
 
 export interface ControlPlaneClientOptions {
-  baseUrl: string
-  apiToken: string
-  fetchImpl?: FetchLike
-  telemetry?: ControlPlaneTelemetryHook
-  retryPolicy?: Partial<RetryPolicy>
+  baseUrl: string;
+  apiToken: string;
+  fetchImpl?: FetchLike;
+  telemetry?: ControlPlaneTelemetryHook;
+  retryPolicy?: Partial<RetryPolicy>;
 }
 
 export type FetchLike = (
   input: RequestInfo | URL,
   init?: RequestInit,
-) => Promise<Response>
+) => Promise<Response>;

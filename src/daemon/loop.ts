@@ -240,6 +240,7 @@ async function processTask(input: {
     runId: task.runId,
     status: "running",
     message: "started",
+    resultUrl: "",
   });
 
   await refreshRegistration(
@@ -270,6 +271,7 @@ async function processTask(input: {
       runId: task.runId,
       status: "running",
       message: "repo ready",
+      resultUrl: "",
     });
   } catch (error) {
     await failTask(
@@ -327,6 +329,7 @@ async function processTask(input: {
     runId: task.runId,
     status: "running",
     message: "backend complete",
+    resultUrl: "",
   });
 
   const gitResult = await finalizeTaskChangesFn({
@@ -353,6 +356,7 @@ async function processTask(input: {
         message: gitResult.prUrl
           ? `PR opened: ${gitResult.prUrl}`
           : "PR opened",
+        resultUrl: gitResult.prUrl || "",
       });
       break;
     }
@@ -364,6 +368,7 @@ async function processTask(input: {
         runId: task.runId,
         status: "succeeded",
         message: "no changes",
+        resultUrl: "",
       });
       break;
     }
@@ -378,6 +383,7 @@ async function processTask(input: {
         runId: task.runId,
         status: "failed",
         message: gitResult.outcome,
+        resultUrl: "",
       });
       break;
     }
@@ -407,6 +413,7 @@ async function failTask(
     runId: task.runId,
     status: "failed",
     message,
+    resultUrl: "",
   });
 }
 

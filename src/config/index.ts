@@ -1,83 +1,89 @@
-import { resolve } from 'node:path'
+import { resolve } from "node:path";
 
-import { z } from 'zod'
+import { z } from "zod";
 
-import { DEFAULT_BACKEND, SUPPORTED_BACKENDS, type BackendKind } from '../backends'
+import {
+  DEFAULT_BACKEND,
+  SUPPORTED_BACKENDS,
+  type BackendKind,
+} from "../backends";
 
-const DEFAULT_CONTROL_PLANE_URL = 'https://sidekicks.sh/api'
-const DEFAULT_SIDEKICK_ID = 'sidekick-001'
-const DEFAULT_REPOS_DIR = './repos'
-const DEFAULT_PID_FILE = './sidekick.pid'
-const DEFAULT_LOG_FILE = './sidekick.log'
-const DEFAULT_POLL_INTERVAL_SECONDS = 10
-const DEFAULT_LOG_BATCH_SIZE = 20
+const DEFAULT_CONTROL_PLANE_URL = "https://sidekicks.sh/api";
+const DEFAULT_SIDEKICK_ID = "sidekick-001";
+const DEFAULT_REPOS_DIR = "./repos";
+const DEFAULT_PID_FILE = "./sidekick.pid";
+const DEFAULT_LOG_FILE = "./sidekick.log";
+const DEFAULT_POLL_INTERVAL_SECONDS = 10;
+const DEFAULT_LOG_BATCH_SIZE = 20;
 
-const nonEmptyString = z.string().trim().min(1, 'must be a non-empty string')
+const nonEmptyString = z.string().trim().min(1, "must be a non-empty string");
 
 const envConfigSchema = z
   .object({
-    SIDEKICK_CONTROL_PLANE_URL: nonEmptyString.default(DEFAULT_CONTROL_PLANE_URL),
-    SIDEKICK_API_TOKEN: nonEmptyString.default('mock-token'),
+    SIDEKICK_CONTROL_PLANE_URL: nonEmptyString.default(
+      DEFAULT_CONTROL_PLANE_URL,
+    ),
+    SIDEKICK_API_TOKEN: nonEmptyString.default("mock-token"),
     SIDEKICK_ID: nonEmptyString.default(DEFAULT_SIDEKICK_ID),
     SIDEKICK_REPOS_DIR: nonEmptyString.default(DEFAULT_REPOS_DIR),
     SIDEKICK_POLL_INTERVAL: positiveIntegerFromEnv(
-      'SIDEKICK_POLL_INTERVAL',
+      "SIDEKICK_POLL_INTERVAL",
       DEFAULT_POLL_INTERVAL_SECONDS,
     ),
     SIDEKICK_AGENT: z.enum(SUPPORTED_BACKENDS).default(DEFAULT_BACKEND),
     SIDEKICK_PID_FILE: nonEmptyString.default(DEFAULT_PID_FILE),
     SIDEKICK_LOG_FILE: nonEmptyString.default(DEFAULT_LOG_FILE),
     SIDEKICK_LOG_BATCH_SIZE: positiveIntegerFromEnv(
-      'SIDEKICK_LOG_BATCH_SIZE',
+      "SIDEKICK_LOG_BATCH_SIZE",
       DEFAULT_LOG_BATCH_SIZE,
     ),
   })
-  .passthrough()
+  .passthrough();
 
 const configOverridesSchema = z
   .object({
     logFile: nonEmptyString.optional(),
     pidFile: nonEmptyString.optional(),
   })
-  .default({})
+  .default({});
 
 export interface SidekickConfig {
-  controlPlaneUrl: string
-  apiToken: string
-  sidekickId: string
-  reposDir: string
-  pollIntervalSeconds: number
-  agent: BackendKind
-  pidFile: string
-  logFile: string
-  logBatchSize: number
+  controlPlaneUrl: string;
+  apiToken: string;
+  sidekickId: string;
+  reposDir: string;
+  pollIntervalSeconds: number;
+  agent: BackendKind;
+  pidFile: string;
+  logFile: string;
+  logBatchSize: number;
 }
 
 interface ConfigOverrides {
-  logFile?: string
-  pidFile?: string
+  logFile?: string;
+  pidFile?: string;
 }
 
 export function readConfig(
   env: NodeJS.ProcessEnv,
   overrides?: ConfigOverrides,
 ): SidekickConfig {
-  const parsedEnvResult = envConfigSchema.safeParse(env)
+  const parsedEnvResult = envConfigSchema.safeParse(env);
   if (!parsedEnvResult.success) {
     throw new Error(
       `Invalid environment config: ${formatIssues(parsedEnvResult.error.issues)}`,
-    )
+    );
   }
 
-  const parsedOverridesResult = configOverridesSchema.safeParse(overrides)
+  const parsedOverridesResult = configOverridesSchema.safeParse(overrides);
   if (!parsedOverridesResult.success) {
     throw new Error(
       `Invalid config overrides: ${formatIssues(parsedOverridesResult.error.issues)}`,
-    )
+    );
   }
 
-  const parsedEnv = parsedEnvResult.data
-  const parsedOverrides = parsedOverridesResult.data
+  const parsedEnv = parsedEnvResult.data;
+  const parsedOverrides = parsedOverridesResult.data;
 
   return {
     controlPlaneUrl: parsedEnv.SIDEKICK_CONTROL_PLANE_URL,
@@ -89,33 +95,36 @@ export function readConfig(
     pidFile: resolve(parsedOverrides.pidFile ?? parsedEnv.SIDEKICK_PID_FILE),
     logFile: resolve(parsedOverrides.logFile ?? parsedEnv.SIDEKICK_LOG_FILE),
     logBatchSize: parsedEnv.SIDEKICK_LOG_BATCH_SIZE,
-  }
+  };
 }
 
 function positiveIntegerFromEnv(name: string, fallback: number) {
-  return z.string().optional().transform((value, ctx) => {
-    if (value === undefined || value.trim() === '') {
-      return fallback
-    }
+  return z
+    .string()
+    .optional()
+    .transform((value, ctx) => {
+      if (value === undefined || value.trim() === "") {
+        return fallback;
+      }
 
-    const parsed = Number.parseInt(value, 10)
-    if (!Number.isFinite(parsed) || parsed < 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `${name} must be a positive integer`,
-      })
-      return z.NEVER
-    }
+      const parsed = Number.parseInt(value, 10);
+      if (!Number.isFinite(parsed) || parsed < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${name} must be a positive integer`,
+        });
+        return z.NEVER;
+      }
 
-    return parsed
-  })
+      return parsed;
+    });
 }
 
 function formatIssues(issues: z.ZodIssue[]) {
   return issues
     .map((issue) => {
-      const path = issue.path.length > 0 ? issue.path.join('.') : '(root)'
-      return `${path}: ${issue.message}`
+      const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+      return `${path}: ${issue.message}`;
     })
-    .join('; ')
+    .join("; ");
 }

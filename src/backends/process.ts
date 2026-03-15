@@ -1,19 +1,19 @@
-import { spawn } from 'node:child_process'
+import { spawn } from "node:child_process";
 
 export interface ProcessRunOptions {
-  cwd: string
-  env?: NodeJS.ProcessEnv
-  stdin?: string
-  onStdoutLine?: (line: string) => void
-  onStderrLine?: (line: string) => void
+  cwd: string;
+  env?: NodeJS.ProcessEnv;
+  stdin?: string;
+  onStdoutLine?: (line: string) => void;
+  onStderrLine?: (line: string) => void;
 }
 
 export interface ProcessRunResult {
-  exitCode: number | null
-  signal: NodeJS.Signals | null
-  stdout: string
-  stderr: string
-  spawnError?: string
+  exitCode: number | null;
+  signal: NodeJS.Signals | null;
+  stdout: string;
+  stderr: string;
+  spawnError?: string;
 }
 
 export async function runProcess(
@@ -25,83 +25,84 @@ export async function runProcess(
     const child = spawn(command, args, {
       cwd: options.cwd,
       env: options.env,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    })
+      stdio: ["pipe", "pipe", "pipe"],
+    });
 
-    const stdoutChunks: Buffer[] = []
-    const stderrChunks: Buffer[] = []
-    let spawnError: string | undefined
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
+    let spawnError: string | undefined;
 
-    const stdoutLines = createLineCollector(options.onStdoutLine)
-    const stderrLines = createLineCollector(options.onStderrLine)
+    const stdoutLines = createLineCollector(options.onStdoutLine);
+    const stderrLines = createLineCollector(options.onStderrLine);
 
-    child.stdout?.on('data', (chunk: Buffer | string) => {
-      const asBuffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
-      stdoutChunks.push(asBuffer)
-      stdoutLines.push(asBuffer.toString('utf8'))
-    })
+    child.stdout?.on("data", (chunk: Buffer | string) => {
+      const asBuffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      stdoutChunks.push(asBuffer);
+      stdoutLines.push(asBuffer.toString("utf8"));
+    });
 
-    child.stderr?.on('data', (chunk: Buffer | string) => {
-      const asBuffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
-      stderrChunks.push(asBuffer)
-      stderrLines.push(asBuffer.toString('utf8'))
-    })
+    child.stderr?.on("data", (chunk: Buffer | string) => {
+      const asBuffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      stderrChunks.push(asBuffer);
+      stderrLines.push(asBuffer.toString("utf8"));
+    });
 
-    child.on('error', (error: Error) => {
-      spawnError = error.message
-    })
+    child.on("error", (error: Error) => {
+      spawnError = error.message;
+    });
 
-    if (typeof options.stdin === 'string') {
-      child.stdin?.write(options.stdin)
+    if (typeof options.stdin === "string") {
+      child.stdin?.write(options.stdin);
     }
-    child.stdin?.end()
+    child.stdin?.end();
 
-    child.on('close', (exitCode, signal) => {
-      stdoutLines.flush()
-      stderrLines.flush()
+    child.on("close", (exitCode, signal) => {
+      stdoutLines.flush();
+      stderrLines.flush();
       resolve({
         exitCode,
         signal,
-        stdout: Buffer.concat(stdoutChunks).toString('utf8'),
-        stderr: Buffer.concat(stderrChunks).toString('utf8'),
+        stdout: Buffer.concat(stdoutChunks).toString("utf8"),
+        stderr: Buffer.concat(stderrChunks).toString("utf8"),
         spawnError,
-      })
-    })
-  })
+      });
+    });
+  });
 }
 
 function createLineCollector(onLine?: (line: string) => void) {
-  let buffer = ''
+  let buffer = "";
 
   return {
     push(chunk: string) {
       if (!onLine) {
-        return
+        return;
       }
 
-      buffer += chunk
+      buffer += chunk;
       while (true) {
-        const newlineIndex = buffer.search(/\r?\n/)
+        const newlineIndex = buffer.search(/\r?\n/);
         if (newlineIndex === -1) {
-          return
+          return;
         }
 
-        const nextChar = buffer[newlineIndex]
-        const separatorLength = nextChar === '\r' && buffer[newlineIndex + 1] === '\n' ? 2 : 1
-        const line = buffer.slice(0, newlineIndex)
-        onLine(line)
-        buffer = buffer.slice(newlineIndex + separatorLength)
+        const nextChar = buffer[newlineIndex];
+        const separatorLength =
+          nextChar === "\r" && buffer[newlineIndex + 1] === "\n" ? 2 : 1;
+        const line = buffer.slice(0, newlineIndex);
+        onLine(line);
+        buffer = buffer.slice(newlineIndex + separatorLength);
       }
     },
     flush() {
       if (!onLine) {
-        return
+        return;
       }
 
       if (buffer.length > 0) {
-        onLine(buffer)
+        onLine(buffer);
       }
-      buffer = ''
+      buffer = "";
     },
-  }
+  };
 }

@@ -1,21 +1,21 @@
-import eslint from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
+import eslint from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'eslint.config.js', 'release.config.cjs'],
+    ignores: ["dist/**", "eslint.config.js", "release.config.cjs"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
-    files: ['**/*.ts'],
+    files: ["**/*.ts"],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      ecmaVersion: "latest",
+      sourceType: "module",
       globals: {
         ...globals.node,
-        Bun: 'readonly',
+        Bun: "readonly",
       },
       parserOptions: {
         project: true,
@@ -23,7 +23,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/consistent-type-imports': 'error',
+      "@typescript-eslint/consistent-type-imports": "error",
     },
   },
-)
+);

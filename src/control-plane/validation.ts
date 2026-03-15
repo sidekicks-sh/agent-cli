@@ -1,8 +1,8 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-import type { ReservedTask, SidekickRegistration } from './types'
+import type { ReservedTask, SidekickRegistration } from "./types";
 
-const nonEmptyString = z.string().trim().min(1, 'must be a non-empty string')
+const nonEmptyString = z.string().trim().min(1, "must be a non-empty string");
 
 const registrationPayloadSchema = z
   .object({
@@ -13,10 +13,10 @@ const registrationPayloadSchema = z
   })
   .transform((value) => ({
     id: value.id,
-    name: value.name ?? 'sidekick',
-    purpose: value.purpose ?? 'unknown',
-    prompt: value.prompt ?? '',
-  }))
+    name: value.name ?? "sidekick",
+    purpose: value.purpose ?? "unknown",
+    prompt: value.prompt ?? "",
+  }));
 
 const reservedTaskPayloadSchema = z
   .object({
@@ -38,35 +38,37 @@ const reservedTaskPayloadSchema = z
     baseBranch: value.base_branch,
     executionBranch: value.execution_branch,
     instructions: value.instructions,
-  }))
+  }));
 
-export function parseRegistrationPayload(payload: unknown): SidekickRegistration {
-  const result = registrationPayloadSchema.safeParse(payload)
+export function parseRegistrationPayload(
+  payload: unknown,
+): SidekickRegistration {
+  const result = registrationPayloadSchema.safeParse(payload);
   if (result.success) {
-    return result.data
+    return result.data;
   }
 
   throw new Error(
     `Invalid registration payload: ${formatIssues(result.error.issues)}`,
-  )
+  );
 }
 
 export function parseReservedTaskPayload(payload: unknown): ReservedTask {
-  const result = reservedTaskPayloadSchema.safeParse(payload)
+  const result = reservedTaskPayloadSchema.safeParse(payload);
   if (result.success) {
-    return result.data
+    return result.data;
   }
 
   throw new Error(
     `Invalid reserved task payload: ${formatIssues(result.error.issues)}`,
-  )
+  );
 }
 
 function formatIssues(issues: z.ZodIssue[]) {
   return issues
     .map((issue) => {
-      const path = issue.path.length > 0 ? issue.path.join('.') : '(root)'
-      return `${path}: ${issue.message}`
+      const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+      return `${path}: ${issue.message}`;
     })
-    .join('; ')
+    .join("; ");
 }
