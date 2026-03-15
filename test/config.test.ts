@@ -3,10 +3,10 @@ import { describe, expect, it } from 'bun:test'
 import { readConfig } from '../src/config'
 
 describe('config validation', () => {
-  it('applies defaults and keeps custom as default backend', () => {
+  it('applies defaults and keeps internal as default backend', () => {
     const config = readConfig({})
 
-    expect(config.agent).toBe('custom')
+    expect(config.agent).toBe('internal')
     expect(config.pollIntervalSeconds).toBe(10)
     expect(config.logBatchSize).toBe(20)
   })

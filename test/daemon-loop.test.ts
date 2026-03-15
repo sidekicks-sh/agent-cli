@@ -195,7 +195,7 @@ describe('daemon loop', () => {
     const dependencies: DaemonLoopDependencies = {
       controlPlaneClient: controlPlane,
       createBackendAdapter: () => ({
-        kind: 'custom',
+        kind: 'internal',
         runTask: () => Promise.reject(new Error('backend exploded')),
       }),
       prepareTaskRepository: () =>
@@ -256,14 +256,14 @@ describe('daemon loop', () => {
     const dependencies: DaemonLoopDependencies = {
       controlPlaneClient: controlPlane,
       createBackendAdapter: () => ({
-        kind: 'custom',
+        kind: 'internal',
         runTask: () =>
           new Promise((resolve) => {
             shouldStop = true
             backendStartedResolve?.()
             releaseBackend = () => {
               resolve({
-                backend: 'custom',
+                backend: 'internal',
                 success: true,
                 summary: 'done',
                 output: 'ok',
@@ -326,7 +326,7 @@ interface LoopFixture {
     sidekickId: string
     reposDir: string
     pollIntervalSeconds: number
-    agent: 'custom'
+    agent: 'internal'
     pidFile: string
     logFile: string
     logBatchSize: number
@@ -345,7 +345,7 @@ function createLoopFixture(): LoopFixture {
       sidekickId: 'sidekick-test',
       reposDir: join(rootDir, 'repos'),
       pollIntervalSeconds: 1,
-      agent: 'custom',
+      agent: 'internal',
       pidFile: join(rootDir, 'sidekick.pid'),
       logFile,
       logBatchSize: 2,
@@ -355,10 +355,10 @@ function createLoopFixture(): LoopFixture {
 
 function createNoopBackendAdapter(): BackendAdapter {
   return {
-    kind: 'custom',
+    kind: 'internal',
     runTask: () =>
       Promise.resolve({
-        backend: 'custom',
+        backend: 'internal',
         success: true,
         summary: 'noop',
         output: '',
@@ -369,11 +369,11 @@ function createNoopBackendAdapter(): BackendAdapter {
 
 function createBackendAdapterWithLogs(lines: string[]): BackendAdapter {
   return {
-    kind: 'custom',
+    kind: 'internal',
     runTask: (_input, context) => {
       for (const line of lines) {
         context?.onLog?.({
-          backend: 'custom',
+          backend: 'internal',
           stream: 'stdout',
           message: line,
           timestamp: new Date().toISOString(),
@@ -381,7 +381,7 @@ function createBackendAdapterWithLogs(lines: string[]): BackendAdapter {
       }
 
       return Promise.resolve({
-        backend: 'custom',
+        backend: 'internal',
         success: true,
         summary: 'done',
         output: 'ok',

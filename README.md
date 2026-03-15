@@ -39,7 +39,7 @@ Commands:
 Most users only need:
 
 - `SIDEKICK_API_TOKEN` (your Sidekicks API token)
-- `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` (if using default `custom` backend)
+- `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` (if using default `internal` backend)
 
 Example:
 
@@ -51,7 +51,7 @@ export OPENROUTER_MODEL="openai/gpt-4.1-mini"
 
 ## Backend Options
 
-- `SIDEKICK_AGENT=custom` (default): in-process OpenRouter backend.
+- `SIDEKICK_AGENT=internal` (default): in-process OpenRouter backend.
 - `SIDEKICK_AGENT=codex`: uses external `codex` CLI.
 - `SIDEKICK_AGENT=claude`: uses external `claude` CLI.
 - `SIDEKICK_AGENT=opencode`: uses external `opencode` CLI.
@@ -65,7 +65,7 @@ Core environment variables:
 - `SIDEKICK_ID` (default: `sidekick-001`)
 - `SIDEKICK_REPOS_DIR` (default: `./repos`)
 - `SIDEKICK_POLL_INTERVAL` (default: `10` seconds)
-- `SIDEKICK_AGENT` (`custom|codex|claude|opencode`, default: `custom`)
+- `SIDEKICK_AGENT` (`internal|codex|claude|opencode`, default: `internal`)
 - `SIDEKICK_PID_FILE` (default: `./sidekick.pid`)
 - `SIDEKICK_LOG_FILE` (default: `./sidekick.log`)
 - `SIDEKICK_LOG_BATCH_SIZE` (default: `20`)

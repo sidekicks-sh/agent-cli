@@ -1,100 +1,100 @@
-import type { ConversationMessage, ToolCall, ToolDefinition } from './types'
+import type { ConversationMessage, ToolCall, ToolDefinition } from "./types";
 
 interface OpenRouterResponse {
   choices?: Array<{
-    finish_reason?: string | null
+    finish_reason?: string | null;
     message?: {
-      role?: 'assistant'
-      content?: string | Array<{ text?: string; type?: string }> | null
-      tool_calls?: ToolCall[]
-      toolCalls?: ToolCall[]
-    }
-  }>
+      role?: "assistant";
+      content?: string | Array<{ text?: string; type?: string }> | null;
+      tool_calls?: ToolCall[];
+      toolCalls?: ToolCall[];
+    };
+  }>;
   error?: {
-    message?: string
-  }
+    message?: string;
+  };
 }
 
 export interface OpenRouterTurnResult {
-  content: string
-  toolCalls: ToolCall[]
-  finishReason?: string | null
+  content: string;
+  toolCalls: ToolCall[];
+  finishReason?: string | null;
 }
 
 export async function createChatCompletion(input: {
-  apiKey: string
-  model: string
-  baseUrl: string
-  messages: ConversationMessage[]
-  tools: ToolDefinition[]
+  apiKey: string;
+  model: string;
+  baseUrl: string;
+  messages: ConversationMessage[];
+  tools: ToolDefinition[];
 }) {
   const response = await fetch(`${input.baseUrl}/chat/completions`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       authorization: `Bearer ${input.apiKey}`,
-      'content-type': 'application/json',
-      'http-referer': 'https://github.com/sidekicks-sh',
-      'x-title': 'sidekick-agent',
+      "content-type": "application/json",
+      "http-referer": "https://github.com/sidekicks-sh",
+      "x-title": "sidekick",
     },
     body: JSON.stringify({
       model: input.model,
       messages: input.messages,
       tools: input.tools.map((tool) => ({
-        type: 'function',
+        type: "function",
         function: {
           name: tool.name,
           description: tool.description,
           parameters: tool.inputSchema,
         },
       })),
-      tool_choice: 'auto',
+      tool_choice: "auto",
       parallel_tool_calls: false,
       temperature: 0.1,
     }),
-  })
+  });
 
-  const data = (await response.json()) as OpenRouterResponse
+  const data = (await response.json()) as OpenRouterResponse;
 
   if (!response.ok) {
     throw new Error(
       `OpenRouter request failed (${response.status} ${response.statusText}): ${data.error?.message ?? JSON.stringify(data)}`,
-    )
+    );
   }
 
-  const choice = data.choices?.[0]
+  const choice = data.choices?.[0];
   if (!choice?.message) {
-    throw new Error(`OpenRouter returned no message: ${JSON.stringify(data)}`)
+    throw new Error(`OpenRouter returned no message: ${JSON.stringify(data)}`);
   }
 
   return {
     content: normalizeContent(choice.message.content),
     toolCalls: choice.message.tool_calls ?? choice.message.toolCalls ?? [],
     finishReason: choice.finish_reason,
-  } satisfies OpenRouterTurnResult
+  } satisfies OpenRouterTurnResult;
 }
 
 function normalizeContent(
   content: string | Array<{ text?: string; type?: string }> | null | undefined,
 ) {
-  if (typeof content === 'string') {
-    return content
+  if (typeof content === "string") {
+    return content;
   }
 
   if (!content) {
-    return ''
+    return "";
   }
 
   if (Array.isArray(content)) {
     return content
       .map((part) => {
-        if (typeof part?.text === 'string') {
-          return part.text
+        if (typeof part?.text === "string") {
+          return part.text;
         }
-        return JSON.stringify(part)
+        return JSON.stringify(part);
       })
-      .join('\n')
-      .trim()
+      .join("\n")
+      .trim();
   }
 
-  return ''
+  return "";
 }
