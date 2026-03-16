@@ -1,4 +1,4 @@
-# Sidekick CLI
+# Agent CLI
 
 The `sidekick` CLI runs a local Sidekick agent that connects to Sidekicks and executes work for your repositories.
 
