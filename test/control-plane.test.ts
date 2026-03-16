@@ -139,6 +139,7 @@ describe("control-plane client", () => {
       runId: "run-1",
       status: "running",
       message: "started",
+      resultUrl: "",
     });
 
     expect(calls).toHaveLength(1);
