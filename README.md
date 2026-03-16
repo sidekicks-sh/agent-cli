@@ -62,7 +62,6 @@ Core environment variables:
 
 - `SIDEKICK_CONTROL_PLANE_URL` (default: `https://sidekicks.sh/api`)
 - `SIDEKICK_API_TOKEN` (default: `mock-token`, set this for real usage)
-- `SIDEKICK_ID` (default: `sidekick-001`)
 - `SIDEKICK_REPOS_DIR` (default: `./repos`)
 - `SIDEKICK_POLL_INTERVAL` (default: `10` seconds)
 - `SIDEKICK_AGENT` (`internal|codex|claude|opencode`, default: `internal`)

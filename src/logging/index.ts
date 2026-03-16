@@ -66,15 +66,28 @@ export class StructuredLogger {
 
   async log(level: LogLevel, event: string, message: string) {
     const context = this.getContext();
-    const line = JSON.stringify({
+    const payload: {
+      ts: string;
+      level: LogLevel;
+      event: string;
+      status: SidekickRuntimeStatus;
+      message: string;
+      sidekick_id?: string;
+      sidekick_name?: string;
+    } = {
       ts: new Date().toISOString(),
       level,
       event,
-      sidekick_id: context.sidekickId,
-      sidekick_name: context.sidekickName,
       status: context.status,
       message,
-    });
+    };
+    if (context.sidekickId.trim().length > 0) {
+      payload.sidekick_id = context.sidekickId;
+    }
+    if (context.sidekickName.trim().length > 0) {
+      payload.sidekick_name = context.sidekickName;
+    }
+    const line = JSON.stringify(payload);
 
     await appendFile(this.logFile, `${line}\n`, "utf8");
     if (this.mirrorToStderr) {

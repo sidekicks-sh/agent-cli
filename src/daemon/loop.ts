@@ -54,8 +54,9 @@ export interface RunDaemonLoopOptions {
 
 interface RuntimeState {
   status: SidekickRuntimeStatus;
-  sidekickName: string;
-  sidekickPrompt: string;
+  sidekickId?: string;
+  sidekickName?: string;
+  sidekickPrompt?: string;
   currentTaskId?: string;
   currentRunId?: string;
 }
@@ -99,8 +100,6 @@ export async function runDaemonLoop(
 
   const state: RuntimeState = {
     status: "booting",
-    sidekickName: "sidekick",
-    sidekickPrompt: "",
   };
   const counters: RuntimeCounters = {
     startedAtMs: now(),
@@ -113,8 +112,8 @@ export async function runDaemonLoop(
     logBatchSize: config.logBatchSize,
     mirrorToStderr: options.mirrorLogsToStderr ?? false,
     getContext: () => ({
-      sidekickId: config.sidekickId,
-      sidekickName: state.sidekickName,
+      sidekickId: state.sidekickId || "",
+      sidekickName: state.sidekickName || "",
       status: state.status,
       taskId: state.currentTaskId,
       runId: state.currentRunId,
@@ -128,10 +127,7 @@ export async function runDaemonLoop(
     },
   });
 
-  await logger.info(
-    "runtime",
-    `daemon booting backend=${config.agent} sidekick_id=${config.sidekickId}`,
-  );
+  await logger.info("runtime", `daemon booting backend=${config.agent}`);
   await refreshRegistration(
     controlPlaneClient,
     logger,
@@ -431,13 +427,13 @@ async function refreshRegistration(
       status: state.status,
     });
     if (registration.id) {
-      config.sidekickId = registration.id;
+      state.sidekickId = registration.id;
     }
     state.sidekickName = registration.name;
     state.sidekickPrompt = registration.prompt;
     await logger.info(
       "registration",
-      `registered sidekick id=${config.sidekickId} name=${registration.name} purpose=${registration.purpose}`,
+      `registered sidekick id=${state.sidekickId ?? ""} name=${registration.name} purpose=${registration.purpose}`,
     );
   } catch (error) {
     await logger.warn(

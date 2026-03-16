@@ -9,7 +9,6 @@ import {
 } from "../backends";
 
 const DEFAULT_CONTROL_PLANE_URL = "https://sidekicks.sh/api";
-const DEFAULT_SIDEKICK_ID = "sidekick-001";
 const DEFAULT_REPOS_DIR = "./repos";
 const DEFAULT_PID_FILE = "./sidekick.pid";
 const DEFAULT_LOG_FILE = "./sidekick.log";
@@ -24,7 +23,6 @@ const envConfigSchema = z
       DEFAULT_CONTROL_PLANE_URL,
     ),
     SIDEKICK_API_TOKEN: nonEmptyString.default("mock-token"),
-    SIDEKICK_ID: nonEmptyString.default(DEFAULT_SIDEKICK_ID),
     SIDEKICK_REPOS_DIR: nonEmptyString.default(DEFAULT_REPOS_DIR),
     SIDEKICK_POLL_INTERVAL: positiveIntegerFromEnv(
       "SIDEKICK_POLL_INTERVAL",
@@ -50,7 +48,6 @@ const configOverridesSchema = z
 export interface SidekickConfig {
   controlPlaneUrl: string;
   apiToken: string;
-  sidekickId: string;
   reposDir: string;
   pollIntervalSeconds: number;
   agent: BackendKind;
@@ -88,7 +85,6 @@ export function readConfig(
   return {
     controlPlaneUrl: parsedEnv.SIDEKICK_CONTROL_PLANE_URL,
     apiToken: parsedEnv.SIDEKICK_API_TOKEN,
-    sidekickId: parsedEnv.SIDEKICK_ID,
     reposDir: resolve(parsedEnv.SIDEKICK_REPOS_DIR),
     pollIntervalSeconds: parsedEnv.SIDEKICK_POLL_INTERVAL,
     agent: parsedEnv.SIDEKICK_AGENT,

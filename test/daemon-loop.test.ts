@@ -327,7 +327,6 @@ interface LoopFixture {
   config: {
     controlPlaneUrl: string;
     apiToken: string;
-    sidekickId: string;
     reposDir: string;
     pollIntervalSeconds: number;
     agent: "internal";
@@ -346,7 +345,6 @@ function createLoopFixture(): LoopFixture {
     config: {
       controlPlaneUrl: "https://example.com/api",
       apiToken: "token",
-      sidekickId: "sidekick-test",
       reposDir: join(rootDir, "repos"),
       pollIntervalSeconds: 1,
       agent: "internal",

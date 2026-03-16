@@ -41,6 +41,8 @@ describe("structured logger", () => {
     expect(lines.length).toBe(1);
     expect(lines[0].event).toBe("runtime");
     expect(lines[0].message).toBe("hello world");
+    expect(lines[0].sidekick_id).toBe("sidekick-001");
+    expect(lines[0].sidekick_name).toBe("sidekick");
     expect(fixture.mirroredLines).toHaveLength(0);
   });
 
@@ -72,6 +74,27 @@ describe("structured logger", () => {
       message?: string;
     };
     expect(mirrored.message).toBe("line one");
+  });
+
+  it("omits sidekick id and name fields when context values are blank", async () => {
+    const fixture = createLoggerFixture();
+
+    const logger = new StructuredLogger({
+      logFile: fixture.logFile,
+      logBatchSize: 20,
+      getContext: () => ({
+        sidekickId: " ",
+        sidekickName: "",
+        status: "idle",
+      }),
+    });
+
+    await logger.info("runtime", "without identity");
+
+    const lines = readStructuredLogLines(fixture.logFile);
+    expect(lines.length).toBe(1);
+    expect("sidekick_id" in lines[0]).toBe(false);
+    expect("sidekick_name" in lines[0]).toBe(false);
   });
 });
 
