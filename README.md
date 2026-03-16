@@ -7,7 +7,7 @@ The `sidekick` CLI runs a local Sidekick agent that connects to Sidekicks and ex
 Install:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/sidekick/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/agent-cli/main/install.sh | sh
 ```
 
 Run:
