@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "build": "bun build --compile --bytecode ./main.ts --outfile ./dist/sidekick",
-    "build:release": "bun run build && bun build --compile --target=bun-linux-x64 ./main.ts --outfile ./dist/sidekick-linux-x64 && bun build --compile --target=bun-darwin-x64 ./main.ts --outfile ./dist/sidekick-darwin-x64 && bun build --compile --target=bun-darwin-arm64 ./main.ts --outfile ./dist/sidekick-darwin-arm64",
+    "build:release": "bun run build && bun build --compile --target=bun-linux-x64 ./main.ts --outfile ./dist/sidekick-linux-x64 && bun build --compile --target=bun-linux-arm64 ./main.ts --outfile ./dist/sidekick-linux-arm64 && bun build --compile --target=bun-darwin-x64 ./main.ts --outfile ./dist/sidekick-darwin-x64 && bun build --compile --target=bun-darwin-arm64 ./main.ts --outfile ./dist/sidekick-darwin-arm64",
     "docker:smoke": "bash ./docker/smoke.sh",
     "release": "semantic-release",
     "check": "bun run lint && bun run typecheck && bun run test"

@@ -57,6 +57,9 @@ asset_name() {
     linux/x64)
       printf '%s\n' "${BIN_NAME}-linux-x64"
       ;;
+    linux/arm64)
+      printf '%s\n' "${BIN_NAME}-linux-arm64"
+      ;;
     darwin/x64)
       printf '%s\n' "${BIN_NAME}-darwin-x64"
       ;;
