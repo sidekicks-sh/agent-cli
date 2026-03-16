@@ -149,6 +149,7 @@ describe("control-plane client", () => {
       runId: "run-1",
       status: "running",
       message: "started",
+      resultUrl: "",
     });
   });
 });
