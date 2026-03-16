@@ -13,7 +13,7 @@ import { buildSystemPrompt } from "./prompt";
 import { createToolRegistry } from "./tools";
 import type { ConversationMessage, Json } from "./types";
 
-const DEFAULT_MAX_STEPS = 24;
+const DEFAULT_MAX_STEPS = 100;
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 
 const backendTaskInputSchema = z.object({
@@ -99,8 +99,6 @@ async function runInternalTask(
   ];
 
   for (let step = 1; step <= maxSteps; step += 1) {
-    emitLog(`running step ${step}/${maxSteps}`);
-
     let response: Awaited<ReturnType<typeof createChatCompletion>>;
     try {
       response = await createChatCompletion({

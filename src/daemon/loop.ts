@@ -287,7 +287,7 @@ async function processTask(input: {
       void logger.log(
         event.stream === "stderr" ? "warn" : "info",
         "agent_output",
-        `${event.backend} message=${event.message}`,
+        `${event.backend}=${event.message}`,
       );
     },
   };
