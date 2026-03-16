@@ -2,7 +2,7 @@
 
 set -eu
 
-REPO="${REPO:-sidekicks-sh/sidekick}"
+REPO="${REPO:-sidekicks-sh/agent-cli}"
 INSTALL_DIR="${INSTALL_DIR:-}"
 BIN_NAME="sidekick"
 
