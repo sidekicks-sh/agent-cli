@@ -10,6 +10,7 @@ import type {
   ReservedTask,
   RetryPolicy,
   SidekickRegistration,
+  TaskArtifactInput,
   TaskLogInput,
   TaskStatusInput,
 } from "./types";
@@ -122,6 +123,19 @@ export class ControlPlaneClient {
         id: input.id,
         runId: input.runId,
         message: input.message,
+      },
+    });
+  }
+
+  async sendTaskArtifact(input: TaskArtifactInput): Promise<void> {
+    await this.request({
+      method: "POST",
+      path: "/sidekick/task/artifact",
+      body: {
+        id: input.id,
+        runId: input.runId,
+        type: input.type,
+        payload: input.payload,
       },
     });
   }

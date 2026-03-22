@@ -2,6 +2,18 @@ import type { BackendKind } from "../backends";
 
 export type SidekickRuntimeStatus = "booting" | "idle" | "working";
 export type TaskExecutionStatus = "running" | "succeeded" | "failed";
+export type SidekickStepDecision = "pass" | "reloop";
+export type SidekickStepOnPass = "next" | "complete";
+export type SidekickStepOnReloop = "self" | `step:${string}`;
+
+export interface SidekickStep {
+  id: string;
+  name: string;
+  prompt: string;
+  enabled: boolean;
+  onPass: SidekickStepOnPass;
+  onReloop: SidekickStepOnReloop;
+}
 
 export interface RegisterSidekickInput {
   agent: BackendKind;
@@ -14,6 +26,8 @@ export interface SidekickRegistration {
   name: string;
   purpose: string;
   prompt: string;
+  steps: SidekickStep[];
+  stepConfigWarnings: string[];
 }
 
 export interface ReservedTask {
@@ -43,6 +57,13 @@ export interface TaskLogInput {
   id: string;
   runId: string;
   message: string;
+}
+
+export interface TaskArtifactInput {
+  id: string;
+  runId: string;
+  type: string;
+  payload: Record<string, unknown>;
 }
 
 export interface ControlPlaneTelemetryRequestEvent {

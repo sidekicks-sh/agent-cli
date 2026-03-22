@@ -1,8 +1,72 @@
 import { z } from "zod";
 
-import type { ReservedTask, SidekickRegistration } from "./types";
+import type {
+  ReservedTask,
+  SidekickRegistration,
+  SidekickStep,
+  SidekickStepOnReloop,
+} from "./types";
 
 const nonEmptyString = z.string().trim().min(1, "must be a non-empty string");
+const stepIdSchema = z
+  .string()
+  .trim()
+  .min(1, "must be a non-empty string")
+  .max(32, "must be at most 32 characters")
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    "must match slug format (lowercase letters, numbers, hyphen)",
+  );
+const reloopSchema = z
+  .string()
+  .trim()
+  .regex(
+    /^self$|^step:[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    "must be one of self or step:<id>",
+  );
+
+export const MAX_SIDEKICK_STEPS = 10;
+
+export const DEFAULT_SIDEKICK_STEPS: SidekickStep[] = [
+  {
+    id: "plan",
+    name: "Plan",
+    prompt: "Read the task and produce an implementation plan.",
+    enabled: true,
+    onPass: "next",
+    onReloop: "self",
+  },
+  {
+    id: "execute",
+    name: "Execute",
+    prompt: "Implement the task in the repository and verify the changes.",
+    enabled: true,
+    onPass: "next",
+    onReloop: "self",
+  },
+  {
+    id: "review",
+    name: "Review",
+    prompt: "Review the implementation and decide whether another execute pass is required.",
+    enabled: true,
+    onPass: "complete",
+    onReloop: "step:execute",
+  },
+];
+
+const sidekickStepSchema = z
+  .object({
+    id: stepIdSchema,
+    name: z.string().trim().min(1).max(60),
+    prompt: z.string().trim().min(1).max(4_000),
+    enabled: z.boolean(),
+    onPass: z.enum(["next", "complete"]),
+    onReloop: reloopSchema,
+  })
+  .transform((value) => ({
+    ...value,
+    onReloop: value.onReloop as SidekickStepOnReloop,
+  }));
 
 const registrationPayloadSchema = z
   .object({
@@ -10,13 +74,20 @@ const registrationPayloadSchema = z
     name: nonEmptyString.optional(),
     purpose: nonEmptyString.optional(),
     prompt: z.string().optional(),
+    steps: z.unknown().optional(),
   })
-  .transform((value) => ({
-    id: value.id,
-    name: value.name ?? "sidekick",
-    purpose: value.purpose ?? "unknown",
-    prompt: value.prompt ?? "",
-  }));
+  .transform((value) => {
+    const normalizedSteps = normalizeSidekickSteps(value.steps);
+
+    return {
+      id: value.id,
+      name: value.name ?? "sidekick",
+      purpose: value.purpose ?? "unknown",
+      prompt: value.prompt ?? "",
+      steps: normalizedSteps.steps,
+      stepConfigWarnings: normalizedSteps.warnings,
+    };
+  });
 
 const reservedTaskPayloadSchema = z
   .object({
@@ -62,6 +133,96 @@ export function parseReservedTaskPayload(payload: unknown): ReservedTask {
   throw new Error(
     `Invalid reserved task payload: ${formatIssues(result.error.issues)}`,
   );
+}
+
+export function parseSidekickSteps(payload: unknown): SidekickStep[] {
+  const parsed = z
+    .array(sidekickStepSchema)
+    .min(1, "steps must include at least one item")
+    .max(MAX_SIDEKICK_STEPS, `steps must include at most ${MAX_SIDEKICK_STEPS} items`)
+    .safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error(formatIssues(parsed.error.issues));
+  }
+
+  const steps = parsed.data;
+  const issues: string[] = [];
+  const byId = new Map<string, SidekickStep>();
+
+  for (const step of steps) {
+    if (byId.has(step.id)) {
+      issues.push(`steps.${step.id}: id must be unique`);
+      continue;
+    }
+
+    byId.set(step.id, step);
+  }
+
+  if (steps.every((step) => !step.enabled)) {
+    issues.push("steps: at least one step must be enabled");
+  }
+
+  for (const step of steps) {
+    if (!step.onReloop.startsWith("step:")) {
+      continue;
+    }
+
+    const target = step.onReloop.slice("step:".length);
+    const targetStep = byId.get(target);
+    if (!targetStep) {
+      issues.push(
+        `steps.${step.id}.onReloop: target step '${target}' does not exist`,
+      );
+      continue;
+    }
+
+    if (!targetStep.enabled) {
+      issues.push(
+        `steps.${step.id}.onReloop: target step '${target}' is disabled`,
+      );
+    }
+  }
+
+  if (issues.length > 0) {
+    throw new Error(issues.join("; "));
+  }
+
+  return steps.map((step) => ({ ...step }));
+}
+
+export function normalizeSidekickSteps(payload: unknown): {
+  steps: SidekickStep[];
+  warnings: string[];
+} {
+  if (payload === undefined || payload === null) {
+    return {
+      steps: createDefaultSidekickSteps(),
+      warnings: ["sidekick.steps missing; using default workflow"],
+    };
+  }
+
+  try {
+    return {
+      steps: parseSidekickSteps(payload),
+      warnings: [],
+    };
+  } catch (error) {
+    return {
+      steps: createDefaultSidekickSteps(),
+      warnings: [
+        `invalid sidekick.steps; using default workflow (${formatErrorMessage(error)})`,
+      ],
+    };
+  }
+}
+
+function createDefaultSidekickSteps() {
+  return DEFAULT_SIDEKICK_STEPS.map((step) => ({ ...step }));
+}
+
+function formatErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function formatIssues(issues: z.ZodIssue[]) {

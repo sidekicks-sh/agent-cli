@@ -2,10 +2,54 @@ import { describe, expect, it } from "bun:test";
 
 import {
   ControlPlaneClient,
+  parseRegistrationPayload,
   parseReservedTaskPayload,
 } from "../src/control-plane";
 
 describe("control-plane validation", () => {
+  it("parses registration payload and falls back to default steps", () => {
+    const registration = parseRegistrationPayload({
+      name: "My Sidekick",
+      purpose: "Testing",
+      prompt: "Be precise",
+    });
+
+    expect(registration.name).toBe("My Sidekick");
+    expect(registration.steps.map((step) => step.id)).toEqual([
+      "plan",
+      "execute",
+      "review",
+    ]);
+    expect(registration.stepConfigWarnings.length).toBe(1);
+  });
+
+  it("falls back to default steps when registration steps are invalid", () => {
+    const registration = parseRegistrationPayload({
+      name: "My Sidekick",
+      purpose: "Testing",
+      prompt: "Be precise",
+      steps: [
+        {
+          id: "bad id",
+          name: "Plan",
+          prompt: "Do thing",
+          enabled: true,
+          onPass: "next",
+          onReloop: "self",
+        },
+      ],
+    });
+
+    expect(registration.steps.map((step) => step.id)).toEqual([
+      "plan",
+      "execute",
+      "review",
+    ]);
+    expect(registration.stepConfigWarnings[0]).toContain(
+      "invalid sidekick.steps",
+    );
+  });
+
   it("parses a valid reserved task payload", () => {
     const task = parseReservedTaskPayload({
       task_id: "task-1",
@@ -150,6 +194,58 @@ describe("control-plane client", () => {
       status: "running",
       message: "started",
       resultUrl: "",
+    });
+  });
+
+  it("sends task artifact payload in expected shape", async () => {
+    const calls: Array<{ url: string; body: Record<string, unknown> }> = [];
+
+    const client = new ControlPlaneClient({
+      baseUrl: "https://example.com/api",
+      apiToken: "token",
+      fetchImpl: (input, init) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        const bodyRaw = init?.body;
+        if (typeof bodyRaw !== "string") {
+          throw new Error("Expected JSON string request body in test");
+        }
+
+        calls.push({
+          url,
+          body: JSON.parse(bodyRaw) as Record<string, unknown>,
+        });
+
+        return Promise.resolve(new Response("", { status: 200 }));
+      },
+    });
+
+    await client.sendTaskArtifact({
+      id: "task-1",
+      runId: "run-1",
+      type: "step.plan",
+      payload: {
+        attempt: 1,
+        decision: "pass",
+      },
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe(
+      "https://example.com/api/sidekick/task/artifact",
+    );
+    expect(calls[0].body).toEqual({
+      id: "task-1",
+      runId: "run-1",
+      type: "step.plan",
+      payload: {
+        attempt: 1,
+        decision: "pass",
+      },
     });
   });
 });
