@@ -12,7 +12,7 @@ import type {
 import type { SidekickConfig } from "../config";
 import {
   ControlPlaneClient,
-  DEFAULT_SIDEKICK_STEPS,
+  createDefaultSidekickSteps,
 } from "../control-plane";
 import type {
   HeartbeatInput,
@@ -118,7 +118,7 @@ export async function runDaemonLoop(
 
   const state: RuntimeState = {
     status: "booting",
-    sidekickSteps: createDefaultSteps(),
+    sidekickSteps: createDefaultSidekickSteps(),
     stepConfigWarnings: [],
   };
   const counters: RuntimeCounters = {
@@ -841,10 +841,6 @@ function formatUptime(totalSeconds: number) {
 
 function formatErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
-}
-
-function createDefaultSteps() {
-  return DEFAULT_SIDEKICK_STEPS.map((step) => ({ ...step }));
 }
 
 function parseMaxStepAttempts(env: NodeJS.ProcessEnv) {

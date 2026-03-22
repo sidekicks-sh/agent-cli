@@ -6,6 +6,12 @@ import type {
   SidekickStep,
   SidekickStepOnReloop,
 } from "./types";
+import {
+  MAX_SIDEKICK_STEPS,
+  createDefaultSidekickSteps,
+} from "./workflow";
+
+export { DEFAULT_SIDEKICK_STEPS, MAX_SIDEKICK_STEPS } from "./workflow";
 
 const nonEmptyString = z.string().trim().min(1, "must be a non-empty string");
 const stepIdSchema = z
@@ -24,35 +30,6 @@ const reloopSchema = z
     /^self$|^step:[a-z0-9]+(?:-[a-z0-9]+)*$/,
     "must be one of self or step:<id>",
   );
-
-export const MAX_SIDEKICK_STEPS = 10;
-
-export const DEFAULT_SIDEKICK_STEPS: SidekickStep[] = [
-  {
-    id: "plan",
-    name: "Plan",
-    prompt: "Read the task and produce an implementation plan.",
-    enabled: true,
-    onPass: "next",
-    onReloop: "self",
-  },
-  {
-    id: "execute",
-    name: "Execute",
-    prompt: "Implement the task in the repository and verify the changes.",
-    enabled: true,
-    onPass: "next",
-    onReloop: "self",
-  },
-  {
-    id: "review",
-    name: "Review",
-    prompt: "Review the implementation and decide whether another execute pass is required.",
-    enabled: true,
-    onPass: "complete",
-    onReloop: "step:execute",
-  },
-];
 
 const sidekickStepSchema = z
   .object({
@@ -215,10 +192,6 @@ export function normalizeSidekickSteps(payload: unknown): {
       ],
     };
   }
-}
-
-function createDefaultSidekickSteps() {
-  return DEFAULT_SIDEKICK_STEPS.map((step) => ({ ...step }));
 }
 
 function formatErrorMessage(error: unknown) {
