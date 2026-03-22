@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/sidekicks-sh/agent-cli/compare/v1.0.2...v1.1.0) (2026-03-22)
+
+
+### Features
+
+* follow steps to complete task ([91a457a](https://github.com/sidekicks-sh/agent-cli/commit/91a457a48b7d1c4d49de6eded6ddf23c4f829cc6))
+
 ## [1.0.2](https://github.com/sidekicks-sh/agent-cli/compare/v1.0.1...v1.0.2) (2026-03-16)
 
 
