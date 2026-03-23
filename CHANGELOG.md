@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/sidekicks-sh/agent-cli/compare/v1.1.0...v1.1.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* force release pipeline ([7ab17c8](https://github.com/sidekicks-sh/agent-cli/commit/7ab17c8713cdf1ba528b2374c24e9023a7a2b815))
+
 # [1.1.0](https://github.com/sidekicks-sh/agent-cli/compare/v1.0.2...v1.1.0) (2026-03-22)
 
 
