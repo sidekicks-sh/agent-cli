@@ -19,7 +19,12 @@ module.exports = {
   branches: ["main"],
   tagFormat: "v${version}",
   plugins: [
-    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        releaseRules: [{ type: "patch", release: "patch" }],
+      },
+    ],
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }],
     ...(buildsReleaseArtifacts
