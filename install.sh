@@ -129,14 +129,14 @@ attempt_stop_existing_sidekick() {
 
   if [ -x "$install_path" ]; then
     log "Stopping any running ${BIN_NAME} process via ${install_path}..."
-    "$install_path" stop >/dev/null 2>&1 || true
+    "$install_path" daemon stop >/dev/null 2>&1 || true
   fi
 
   if need_cmd "$BIN_NAME"; then
     path_bin="$(command -v "$BIN_NAME" || true)"
     if [ -n "$path_bin" ] && [ "$path_bin" != "$install_path" ]; then
       log "Stopping any running ${BIN_NAME} process via ${path_bin}..."
-      "$BIN_NAME" stop >/dev/null 2>&1 || true
+      "$BIN_NAME" daemon stop >/dev/null 2>&1 || true
     fi
   fi
 }
