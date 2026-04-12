@@ -10,6 +10,20 @@ curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/agent-cli/main/install
 
 The installer downloads the latest compiled binary for your OS/architecture from GitHub Releases and installs it as `sidekick`.
 
+## Uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/agent-cli/main/uninstall.sh | sh
+```
+
+Or, if you already have this repository locally:
+
+```bash
+./uninstall.sh
+```
+
+The uninstall script stops the daemon (if running) and removes the installed `sidekick` binary.
+
 ## Quick Start
 
 Authenticate:
