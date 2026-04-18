@@ -2,9 +2,9 @@
 
 set -eu
 
-REPO="${REPO:-sidekicks-sh/agent-cli}"
+REPO="${REPO:-sidekicks-sh/cli}"
 INSTALL_DIR="${INSTALL_DIR:-}"
-BIN_NAME="sidekick"
+BIN_NAME="sidekicks"
 
 log() {
   printf '%s\n' "$*"
@@ -124,41 +124,21 @@ install_binary() {
   fail "cannot write to ${dest_dir}; set INSTALL_DIR to a writable path"
 }
 
-attempt_stop_existing_sidekick() {
-  install_path="$1"
-
-  if [ -x "$install_path" ]; then
-    log "Stopping any running ${BIN_NAME} process via ${install_path}..."
-    "$install_path" daemon stop >/dev/null 2>&1 || true
-  fi
-
-  if need_cmd "$BIN_NAME"; then
-    path_bin="$(command -v "$BIN_NAME" || true)"
-    if [ -n "$path_bin" ] && [ "$path_bin" != "$install_path" ]; then
-      log "Stopping any running ${BIN_NAME} process via ${path_bin}..."
-      "$BIN_NAME" daemon stop >/dev/null 2>&1 || true
-    fi
-  fi
-}
-
 main() {
   os="$(detect_os)"
   arch="$(detect_arch)"
   asset="$(asset_name "$os" "$arch")"
   dest_dir="$(resolve_install_dir)"
-  install_path="${dest_dir}/${BIN_NAME}"
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "$tmp_dir"' EXIT INT TERM
 
   url="https://github.com/${REPO}/releases/latest/download/${asset}"
-  archive_path="${tmp_dir}/${asset}"
-
-  attempt_stop_existing_sidekick "$install_path"
+  asset_path="${tmp_dir}/${asset}"
 
   log "Downloading ${asset} from ${url}"
-  download "$url" "$archive_path"
+  download "$url" "$asset_path"
 
-  install_binary "$archive_path" "$dest_dir"
+  install_binary "$asset_path" "$dest_dir"
 
   log "Installed ${BIN_NAME} to ${dest_dir}/${BIN_NAME}"
   case ":$PATH:" in

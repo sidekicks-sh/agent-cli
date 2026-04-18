@@ -1,116 +1,67 @@
 # Sidekicks CLI
 
-The `sidekick` CLI runs the Sidekicks worker from your machine and manages auth, sidekick selection, daemon lifecycle, and task execution.
+`sidekicks-cli` is the wrapper repository for the published `sidekicks` binary built from `sidekicks-monorepo/apps/cli`.
 
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/agent-cli/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/cli/main/install.sh | sh
 ```
 
-The installer downloads the latest compiled binary for your OS/architecture from GitHub Releases and installs it as `sidekick`.
+The installer downloads the latest release artifact for your OS and architecture and installs it as `sidekicks`.
 
 ## Uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/agent-cli/main/uninstall.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sidekicks-sh/cli/main/uninstall.sh | sh
 ```
 
-Or, if you already have this repository locally:
+If you already cloned this repository:
 
 ```bash
 ./uninstall.sh
 ```
 
-The uninstall script stops the daemon (if running) and removes the installed `sidekick` binary.
+## Current Command Surface
 
-## Quick Start
+The CLI package is still in progress. These are the commands currently implemented in `sidekicks-monorepo/apps/cli`.
 
-Authenticate:
+### `sidekicks login`
 
-```bash
-sidekick auth login
-sidekick auth whoami
-```
-
-Create and select a sidekick:
+Start device authorization for this machine and store the session in `~/.sidekicks/session.json`.
 
 ```bash
-sidekick sidekick create --name "Build Bot" --purpose "Implement and ship queued tasks" --select
+sidekicks login
 ```
 
-Detect and set a local coding agent:
+### `sidekicks logout`
+
+Clear the saved session and attempt a server-side logout if a token is present.
 
 ```bash
-sidekick models detect
-sidekick models set codex
-# or
-sidekick models set claude
+sidekicks logout
 ```
 
-Validate machine readiness:
+### `sidekicks --help`
+
+Show the current command list and usage.
 
 ```bash
-sidekick doctor
+sidekicks --help
 ```
 
-Run in foreground:
+### `sidekicks --version`
+
+Show the current CLI version.
 
 ```bash
-sidekick run
+sidekicks --version
 ```
 
-Run in daemon mode:
+## Configuration
 
-```bash
-sidekick daemon start
-sidekick daemon status
-sidekick daemon stop
-```
+- `SIDEKICKS_API_BASE_URL`: override the API base URL. Default: `https://api.sidekicks.sh`
 
-## Command Surface
+## Status
 
-```bash
-sidekick <command> [options]
-
-Commands:
-  auth     Authentication commands
-  sidekick Sidekick management commands
-  task     Task management commands
-  doctor   Local readiness checks
-  config   Local config management
-  models   Local agent model selection
-  daemon   Detached lifecycle management (start/status/stop)
-  run      Worker loop in foreground mode
-```
-
-Global flags:
-
-- `--json`: emit one machine-readable JSON object to stdout
-- `--non-interactive`: disable prompts
-- `--yes`: auto-confirm prompts
-
-## Daemon Lifecycle Notes
-
-- `sidekick daemon start` requires an authenticated session.
-- `sidekick daemon status` and `sidekick daemon stop` are local-state operations and can succeed unauthenticated.
-- `sidekick daemon stop` is idempotent.
-
-## Task Creation Scope
-
-`sidekick task create` requires both project and repository scope.
-
-Supported inputs today:
-
-- Explicit IDs: `--project-id` and `--repository-id`
-- Lookup flags: `--project-name` and `--repository-url`
-
-Example (explicit IDs):
-
-```bash
-sidekick task create \
-  --project-id "<project-id>" \
-  --repository-id "<repository-id>" \
-  --title "Fix failing CI check" \
-  --description "Investigate and resolve lint failure in runner flow"
-```
+Additional CLI commands will be documented here as `sidekicks-monorepo/apps/cli` is completed.

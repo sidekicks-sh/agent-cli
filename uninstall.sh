@@ -3,7 +3,7 @@
 set -eu
 
 INSTALL_DIR="${INSTALL_DIR:-}"
-BIN_NAME="sidekick"
+BIN_NAME="sidekicks"
 
 log() {
   printf '%s\n' "$*"
@@ -25,15 +25,6 @@ resolve_install_dir() {
   fi
 
   printf '%s\n' "$HOME/.local/bin"
-}
-
-stop_daemon() {
-  bin_path="$1"
-
-  if [ -x "$bin_path" ]; then
-    log "Stopping any running ${BIN_NAME} process via ${bin_path}..."
-    "$bin_path" daemon stop >/dev/null 2>&1 || true
-  fi
 }
 
 remove_binary() {
@@ -62,14 +53,6 @@ main() {
   removed=0
   dest_dir="$(resolve_install_dir)"
   install_path="${dest_dir}/${BIN_NAME}"
-
-  stop_daemon "$install_path"
-  if need_cmd "$BIN_NAME"; then
-    path_bin="$(command -v "$BIN_NAME" || true)"
-    if [ -n "$path_bin" ] && [ "$path_bin" != "$install_path" ]; then
-      stop_daemon "$path_bin"
-    fi
-  fi
 
   if [ -e "$install_path" ]; then
     remove_binary "$install_path"
