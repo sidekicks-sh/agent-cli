@@ -1,6 +1,6 @@
 # Sidekicks CLI
 
-`sidekicks-cli` is the wrapper repository for the published `sidekicks` binary built from `sidekicks-monorepo/apps/cli`.
+`sidekicks-cli` is the wrapper repository for the published `sidekicks` binary.
 
 ## Install
 
@@ -24,7 +24,7 @@ If you already cloned this repository:
 
 ## Current Command Surface
 
-The CLI package is still in progress. These are the commands currently implemented in `sidekicks-monorepo/apps/cli`.
+The CLI package is still in progress. These are the commands currently implemented today.
 
 ### `sidekicks login`
 
@@ -64,4 +64,4 @@ sidekicks --version
 
 ## Status
 
-Additional CLI commands will be documented here as `sidekicks-monorepo/apps/cli` is completed.
+Additional CLI commands will be documented here as the CLI is completed.
