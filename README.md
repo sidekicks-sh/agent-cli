@@ -1,6 +1,6 @@
 # Sidekicks CLI
 
-`sidekicks-cli` is the wrapper repository for the published `sidekicks` binary.
+`sidekicks` allows you (or an agent) to interact with sidekicks.sh from the command line.
 
 ## Install
 
@@ -22,9 +22,7 @@ If you already cloned this repository:
 ./uninstall.sh
 ```
 
-## Current Command Surface
-
-The CLI package is still in progress. These are the commands currently implemented today.
+## Command Surface
 
 ### `sidekicks login`
 
@@ -40,6 +38,44 @@ Clear the saved session and attempt a server-side logout if a token is present.
 
 ```bash
 sidekicks logout
+```
+
+### List Resources With `sidekicks list-*`
+
+List the resources available in your Sidekicks account. These commands require an authenticated session.
+
+```bash
+sidekicks list-sidekicks
+sidekicks list-tasks
+sidekicks list-projects
+sidekicks list-repositories
+```
+
+`sidekicks list-repos` is also available as an alias for `sidekicks list-repositories`.
+
+Use `--json` if you want machine-readable output instead of the default table output:
+
+```bash
+sidekicks list-sidekicks --json
+```
+
+### View Resources With `sidekicks get-*`
+
+View a single sidekick, task, project, or repository by id. These commands require an authenticated session and take the resource id via `--id`.
+
+```bash
+sidekicks get-sidekick --id <id>
+sidekicks get-task --id <id>
+sidekicks get-project --id <id>
+sidekicks get-repository --id <id>
+```
+
+`sidekicks get-repo --id <id>` is also available as an alias for `sidekicks get-repository --id <id>`.
+
+Use `--json` here as well if you want JSON output:
+
+```bash
+sidekicks get-task --id <id> --json
 ```
 
 ### `sidekicks --help`
@@ -61,7 +97,4 @@ sidekicks --version
 ## Configuration
 
 - `SIDEKICKS_API_BASE_URL`: override the API base URL. Default: `https://api.sidekicks.sh`
-
-## Status
-
-Additional CLI commands will be documented here as the CLI is completed.
+- `SIDEKICKD_HOME`: override the Sidekicks local home directory. The session file is resolved from here.
