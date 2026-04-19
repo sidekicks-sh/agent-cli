@@ -97,4 +97,4 @@ sidekicks --version
 ## Configuration
 
 - `SIDEKICKS_API_BASE_URL`: override the API base URL. Default: `https://api.sidekicks.sh`
-- `SIDEKICKD_HOME`: override the Sidekicks local home directory. The session file is resolved from here.
+- `SIDEKICKS_HOME`: override the Sidekicks local home directory. The session file is resolved from here.
